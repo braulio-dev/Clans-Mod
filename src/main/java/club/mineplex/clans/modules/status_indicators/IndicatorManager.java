@@ -14,8 +14,7 @@ import java.util.List;
 
 public class IndicatorManager {
 
-    public static final int U_PIXELS = 32;
-    public static final int V_PIXELS = 32;
+    public static final int uPixels = 32, vPixels = 32;
 
     final ClientData data = ClansMod.getInstance().getClientData();
     final List<Indicator> registeredIndicators = new ArrayList<>();
@@ -25,30 +24,26 @@ public class IndicatorManager {
     }
 
     @SubscribeEvent
-    public void RenderGameOverlayEvent(final RenderGameOverlayEvent.Pre event) {
+    public void RenderGameOverlayEvent(RenderGameOverlayEvent.Pre event) {
 
-        if (event.type == RenderGameOverlayEvent.ElementType.HOTBAR && data.isMineplex()) {
-            final ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
+        if (event.type == RenderGameOverlayEvent.ElementType.HOTBAR && data.isMineplex) {
+            ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
 
-            final List<Indicator> enabledIndicators = new ArrayList<>();
-            for (final Indicator indicator : registeredIndicators) {
-                if (indicator.isEnabled()) {
-                    enabledIndicators.add(indicator);
-                }
-            }
+            List<Indicator> enabledIndicators = new ArrayList<>();
+            registeredIndicators.forEach(indicator -> {
+                if (indicator.isEnabled()) enabledIndicators.add(indicator);
+            });
 
-            final int separation = 8;
-            final int y = 25;
-            int xIndex = scaledResolution.getScaledWidth() / 2 - (enabledIndicators.size() * U_PIXELS / 2) - (enabledIndicators.size() - 1) * separation;
+            int separation = 8;
+            int y = 25, xIndex = sr.getScaledWidth() / 2 - (enabledIndicators.size() * uPixels / 2) - (enabledIndicators.size() - 1) * separation;
 
-            for (final Indicator enabledIndicator : enabledIndicators) {
+            for (Indicator enabledIndicator : enabledIndicators) {
                 ClansMod.getInstance().getMinecraft().getTextureManager().bindTexture(enabledIndicator.getResourceLocation());
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-                final int u = enabledIndicator.getHorizontal();
-                final int v = enabledIndicator.getVertical();
-                Gui.drawModalRectWithCustomSizedTexture(xIndex, y, u, v, U_PIXELS, V_PIXELS, U_PIXELS, V_PIXELS);
-                xIndex += separation + U_PIXELS;
+                int u = enabledIndicator.u, v = enabledIndicator.v;
+                Gui.drawModalRectWithCustomSizedTexture(xIndex, y, u, v, uPixels, vPixels, uPixels, vPixels);
+                xIndex += separation + uPixels;
             }
 
         }

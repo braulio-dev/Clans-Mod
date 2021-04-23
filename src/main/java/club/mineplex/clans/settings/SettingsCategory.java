@@ -1,23 +1,15 @@
 package club.mineplex.clans.settings;
 
-import club.mineplex.clans.modules.ModModule;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public abstract class SettingsCategory {
 
-    private final List<GuiSetting> settings = new ArrayList<>();
+    protected final List<GuiSetting> settings = new ArrayList<>();
     private final String name;
 
-    protected SettingsCategory(final String name) {
+    public SettingsCategory(String name) {
         this.name = name;
-    }
-
-    protected final void addSettings(final GuiSetting... settings) {
-        this.settings.addAll(Arrays.asList(settings));
     }
 
     public String getName() {
@@ -32,30 +24,21 @@ public abstract class SettingsCategory {
         return new ArrayList<>(settings);
     }
 
-    public abstract static class GuiSetting {
+    public static abstract class GuiSetting {
 
         private final String name;
         private final SettingsCategory category;
-        private ModModule assignedModule = null;
 
-        GuiSetting(final String name, final SettingsCategory category) {
+        public GuiSetting(String name, SettingsCategory category) {
             this.name = name;
             this.category = category;
-        }
-
-        public Optional<ModModule> getAssignedModule() {
-            return Optional.ofNullable(assignedModule);
-        }
-
-        public void setAssignedModule(final ModModule module) {
-            assignedModule = module;
         }
 
         public String getName() {
             return name;
         }
 
-        SettingsCategory getCategory() {
+        public SettingsCategory getCategory() {
             return category;
         }
 
@@ -64,7 +47,7 @@ public abstract class SettingsCategory {
             save();
         }
 
-        String getConfigID() {
+        protected String getConfigID() {
             return getName().toLowerCase().replaceAll(" ", "-");
         }
 
@@ -75,8 +58,6 @@ public abstract class SettingsCategory {
         public abstract void save();
 
         public abstract void load(Object defaultV);
-
-        public abstract List<String> getDescription();
 
     }
 

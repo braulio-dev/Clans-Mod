@@ -8,49 +8,44 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public abstract class Indicator extends ModModule {
 
-    private final int horizontal;
-    private final int vertical;
+    private final String name;
     private final ResourceLocation resourceLocation;
+    public final int u, v;
+
     private boolean isEnabled = false;
 
-    protected Indicator(final String name,
-                        final ResourceLocation resourceLocation,
-                        final int horizontal,
-                        final int vertical) {
+    public Indicator(String name, ResourceLocation resourceLocation, int u, int v) {
         super(name);
+        this.name = name;
         this.resourceLocation = resourceLocation;
-        this.horizontal = horizontal;
-        this.vertical = vertical;
+        this.u = u;
+        this.v = v;
     }
 
-    public int getHorizontal() {
-        return horizontal;
-    }
-
-    public int getVertical() {
-        return vertical;
+    @Override
+    public String getName() {
+        return name;
     }
 
     public ResourceLocation getResourceLocation() {
         return resourceLocation;
     }
 
-    @Override
-    public boolean isModuleUsable() {
-        return isEnabled;
+    protected void setEnabled(boolean enabled) {
+        this.isEnabled = enabled;
     }
 
-    protected void setEnabled(final boolean enabled) {
-        this.isEnabled = enabled;
+    public boolean isEnabled() {
+        return isEnabled;
     }
 
     protected abstract void handleMessage(IChatComponent message);
 
     @SubscribeEvent
-    public void onChat(final ClientChatReceivedEvent event) {
-        if (data.isMineplex()) {
-            handleMessage(event.message);
-        }
+    public void onChat(ClientChatReceivedEvent event) {
+        if (!data.isMineplex) return;
+
+        handleMessage(event.message);
     }
 
 }

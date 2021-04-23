@@ -3,9 +3,6 @@ package club.mineplex.clans.settings.repository;
 import club.mineplex.clans.enums.Status;
 import club.mineplex.clans.settings.GuiSettingMode;
 import club.mineplex.clans.settings.SettingsCategory;
-import net.minecraft.client.resources.I18n;
-
-import java.util.Arrays;
 
 public class ClansSettings extends SettingsCategory {
 
@@ -17,75 +14,31 @@ public class ClansSettings extends SettingsCategory {
     public ClansSettings() {
         super("Clans");
 
-        legendaryDropPrevention = new GuiSettingMode("Legendary Drop Prevention", this, Arrays.asList(
-                "Stop dropping your legendary items.",
-                "The list of legendary items includes:",
-                "",
-                "● Windblade",
-                "● Hyper Axe",
-                "● Magnetic Maul",
-                "● Giant's Broadsword",
-                "● Meridian Scepter",
-                "● Alligator's Tooth",
-                "● Scythe of the Fallen Lord",
-                "● Knight's Greatlance",
-                "● Runed Pickaxe"
-        ), Status.ENABLED, Status.DISABLED);
+        this.legendaryDropPrevention = new GuiSettingMode("Legendary Drop Prevention", this, Status.ENABLED, Status.DISABLED);
+        this.valuableDropPrevention = new GuiSettingMode("Valuable Item Drop Prevention", this, Status.ENABLED, Status.DISABLED);
+        this.slotLocks = new GuiSettingMode("Inventory Slot Locks", this, Status.ENABLED, Status.DISABLED);
+        this.enhancedMounts = new GuiSettingMode("Enhanced Mounts", this, Status.ENABLED, Status.DISABLED);
 
-
-        valuableDropPrevention = new GuiSettingMode("Valuable Item Drop Prevention", this, Arrays.asList(
-                "Stop dropping your valuable items.",
-                "The list of valuable items includes:",
-                "",
-                "● Gold Token"
-        ), Status.ENABLED, Status.DISABLED);
-
-
-        slotLocks = new GuiSettingMode("Inventory Slot Locks", this, Arrays.asList(
-                "Prevent yourself from interacting with certain",
-                "slots in your inventory.",
-                "",
-                "You can now lock and unlock slots by hovering",
-                "over them in your inventory and pressing the",
-                String.format("'%s' keybind found in your game controls.", I18n.format("clansmod.key.slotlock.desc")),
-                "",
-                "You cannot drop an item in a locked slot and you",
-                "cannot move it in your inventory."
-        ), Status.ENABLED, Status.DISABLED);
-
-
-        enhancedMounts = new GuiSettingMode("Enhanced Mounts", this, Arrays.asList(
-                "Spawn your most recent mount by pressing",
-                String.format("the '%s' keybind found", I18n.format("clansmod.key.mount.desc")),
-                "in your control settings.",
-                "",
-                "Your most recent mount is determined by",
-                "the last one you clicked in the /mount GUI"
-        ), Status.ENABLED, Status.DISABLED);
-
-
-        addSettings(
-                valuableDropPrevention,
-                legendaryDropPrevention,
-                slotLocks,
-                enhancedMounts
-        );
+        this.settings.add(this.valuableDropPrevention);
+        this.settings.add(this.legendaryDropPrevention);
+        this.settings.add(this.slotLocks);
+        this.settings.add(this.enhancedMounts);
     }
 
-    public GuiSettingMode getLegendaryDropPrevention() {
-        return legendaryDropPrevention;
+    public boolean getLegendaryDropPrevention() {
+        return Status.valueOf(legendaryDropPrevention.getModes().get(legendaryDropPrevention.currentMode).toUpperCase()).equals(Status.ENABLED);
     }
 
-    public GuiSettingMode getValuableDropPrevention() {
-        return valuableDropPrevention;
+    public boolean getValuableDropPrevention() {
+        return Status.valueOf(valuableDropPrevention.getModes().get(valuableDropPrevention.currentMode).toUpperCase()).equals(Status.ENABLED);
     }
 
-    public GuiSettingMode getSlotLocks() {
-        return slotLocks;
+    public boolean getSlotLocks() {
+        return Status.valueOf(slotLocks.getModes().get(slotLocks.currentMode).toUpperCase()).equals(Status.ENABLED);
     }
 
-    public GuiSettingMode getEnhancedMounts() {
-        return enhancedMounts;
+    public boolean getEnhancedMounts() {
+        return Status.valueOf(enhancedMounts.getModes().get(enhancedMounts.currentMode).toUpperCase()).equals(Status.ENABLED);
     }
 
 }

@@ -1,6 +1,5 @@
 package club.mineplex.clans;
 
-import club.mineplex.clans.enums.Status;
 import club.mineplex.clans.modules.mineplex_server.ServerType;
 import club.mineplex.clans.settings.SettingsHandler;
 import club.mineplex.clans.settings.repository.DiscordSettings;
@@ -21,7 +20,7 @@ public class DiscordIntegration {
     public void start() {
         this.created = System.currentTimeMillis();
 
-        final DiscordEventHandlers handlers = new DiscordEventHandlers.Builder().setReadyEventHandler(discordUser -> {
+        DiscordEventHandlers handlers = new DiscordEventHandlers.Builder().setReadyEventHandler(discordUser -> {
             System.out.println("Loaded Discord Integration! [@" + discordUser.username + "#" + discordUser.discriminator + "]");
             update();
         }).build();
@@ -55,39 +54,35 @@ public class DiscordIntegration {
     }
 
     private void update() {
-        final DiscordSettings discordSettings = SettingsHandler.getInstance().getSettingThrow(DiscordSettings.class);
-        if (discordSettings.getDisplayRichStatus().getCurrentMode().equals(Status.ENABLED)) {
+
+        if (SettingsHandler.getSettings(DiscordSettings.class).getDisplayRichStatus()) {
 
             if (!this.running) start();
 
-            final ClientData data = ClansMod.getInstance().getClientData();
-            final String server;
+            ClientData data = ClansMod.getInstance().getClientData();
+            String server;
 
-            if (data.isOnMultiplayer()) {
+            if (data.onMultiplayer)  {
 
-                if (!discordSettings.getDisplayServer().getCurrentMode().equals(Status.ENABLED)) {
+                if (!SettingsHandler.getSettings(DiscordSettings.class).getDisplayServer()) {
                     server = "Multiplayer";
                 } else {
-
-                    if (data.isMineplex() && discordSettings.getDisplayMineplexServer().getCurrentMode().equals(Status.ENABLED)) {
-                        boolean isStaffServer = data.getMineplexServerType().equals(ServerType.STAFF);
-                        server = "Mineplex " + (isStaffServer ? "Private Server" : data.getMineplexServer());
-                    } else {
-                        server = data.getMultiplayerIP();
-                    }
-
+                    if (data.isMineplex && SettingsHandler.getSettings(DiscordSettings.class).getDisplayMineplexServer())
+                        server = "Mineplex " + (data.mineplexServerType.equals(ServerType.STAFF) ? "Private Server" : data.mineplexServer);
+                    else
+                        server = data.multiplayerIP;
                 }
 
             } else {
                 server = "Main Menu";
             }
 
-            final DiscordRichPresence.Builder builder = new DiscordRichPresence.Builder(server);
-            builder.setDetails(data.isOnMultiplayer() ? "In-Game" : "");
-            builder.setBigImage("mporange", "");
-            builder.setStartTimestamps(created);
+            DiscordRichPresence.Builder b = new DiscordRichPresence.Builder(server);
+            b.setDetails(data.onMultiplayer ? "In-Game" : "");
+            b.setBigImage("mporange", "");
+            b.setStartTimestamps(created);
 
-            DiscordRPC.discordUpdatePresence(builder.build());
+            DiscordRPC.discordUpdatePresence(b.build());
 
         } else if (this.running) {
 

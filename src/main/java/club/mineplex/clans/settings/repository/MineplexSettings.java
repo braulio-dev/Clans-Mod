@@ -4,8 +4,6 @@ import club.mineplex.clans.enums.Status;
 import club.mineplex.clans.settings.GuiSettingMode;
 import club.mineplex.clans.settings.SettingsCategory;
 
-import java.util.Arrays;
-
 public class MineplexSettings extends SettingsCategory {
 
     private final GuiSettingMode redundantMessageFilter;
@@ -13,26 +11,13 @@ public class MineplexSettings extends SettingsCategory {
     public MineplexSettings() {
         super("Mineplex");
 
-        redundantMessageFilter = new GuiSettingMode("Message Filter", this, Arrays.asList(
-                "Your game chat will not be filled with",
-                "redundant and annoying messages in",
-                "Mineplex.",
-                "",
-                "This message list includes:",
-                "● 'You cannot harm' message",
-                "● Redundant 'no matches found' search message",
-                "● Redundant 'too many matches found' search message",
-                "● GWEN Bulletin",
-                "● Clans map bug message when switching servers"
-        ), Status.ENABLED, Status.DISABLED);
+        this.redundantMessageFilter = new GuiSettingMode("Message Filter", this, Status.ENABLED, Status.DISABLED);
 
-        addSettings(
-                redundantMessageFilter
-        );
+        this.settings.add(this.redundantMessageFilter);
     }
 
-    public GuiSettingMode getRedundantMessageFilter() {
-        return redundantMessageFilter;
+    public boolean getRedundantMessageFilter() {
+        return Status.valueOf(redundantMessageFilter.getModes().get(redundantMessageFilter.currentMode).toUpperCase()).equals(Status.ENABLED);
     }
 
 }

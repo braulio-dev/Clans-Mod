@@ -10,56 +10,57 @@ import java.net.Proxy;
 import java.net.SocketException;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ConnectionBuilder {
 
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36";
-    private final Map<String, String> headers;
+    private final static String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36";
+
     private String endpoint;
     private String data;
     private String method;
+
     private Proxy proxy;
+
+    private final Map<String, String> headers;
     private HttpURLConnection finalConnection;
-    private long delay = 0;
-    private long sentTime = 0;
+    public long delay = 0, sentTime = 0;
 
-    public ConnectionBuilder(final String endpoint) {
+    public ConnectionBuilder(String endpoint) {
 
-        data = "";
-        method = "GET";
+        this.data = "";
+        this.method = "GET";
         this.endpoint = endpoint;
-        headers = new HashMap<>();
+        this.headers = new HashMap<>();
 
     }
 
-    public void proxy(final Proxy proxy) {
+    public void proxy(Proxy proxy) {
 
         this.proxy = proxy;
 
     }
 
-    public void endpoint(final String endpoint) {
+    public void endpoint(String endpoint) {
 
         this.endpoint = endpoint;
 
     }
 
-    public void header(final String key, final String value) {
+    public void header(String key, String value) {
 
-        headers.put(key, value);
+        this.headers.put(key, value);
 
     }
 
-    public ConnectionBuilder method(final String method) {
+    public ConnectionBuilder method(String method) {
 
         this.method = method;
         return this;
 
     }
 
-    public void data(final String data) {
+    public void data(String data) {
 
         this.data = data;
 
@@ -71,11 +72,11 @@ public class ConnectionBuilder {
 
         try {
 
-            final HttpURLConnection connection = ssl();
+            HttpURLConnection connection = ssl();
 
             connection.setRequestProperty("User-Agent", USER_AGENT);
 
-            for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.setRequestProperty(entry.getKey(), entry.getValue());
             }
 
@@ -89,7 +90,7 @@ public class ConnectionBuilder {
                 connection.setRequestMethod("POST");
                 connection.connect();
 
-                final DataOutputStream output = new DataOutputStream(connection.getOutputStream());
+                DataOutputStream output = new DataOutputStream(connection.getOutputStream());
                 output.writeBytes(data);
                 output.flush();
                 output.close();
@@ -113,7 +114,7 @@ public class ConnectionBuilder {
 
                 connection.connect();
 
-                final OutputStreamWriter osw = new OutputStreamWriter(connection.getOutputStream());
+                OutputStreamWriter osw = new OutputStreamWriter(connection.getOutputStream());
                 osw.write(data);
                 osw.flush();
                 osw.close();
@@ -122,25 +123,25 @@ public class ConnectionBuilder {
             }
 
 
-        } catch (final SocketException e) {
+        } catch (SocketException e) {
             System.out.println();
             System.out.println("[SocketException] " + e.getMessage());
-        } catch (final IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        delay = Instant.now().toEpochMilli() - sentTime;
+        this.delay = Instant.now().toEpochMilli() - sentTime;
     }
 
     private HttpURLConnection ssl() throws IOException {
-        return UtilHTTP.ssl(endpoint, proxy);
+        return UtilHTTP.ssl(this.endpoint, proxy);
     }
 
     public String getResponseString() {
-        return UtilHTTP.getURLResponse(finalConnection).orElse("Error grabbing response");
+        return UtilHTTP.getURLResponse(finalConnection);
     }
 
-    public String getHeader(final String name) {
+    public String getHeader(String name) {
 
         return finalConnection.getHeaderField(name);
 
@@ -158,21 +159,7 @@ public class ConnectionBuilder {
         return headers;
     }
 
-    public void skipRedirects() {
-
-        ConnectionBuilder builder = this;
-        while (builder.getResponseCode() == 301) {
-            final Map<String, List<String>> headers = builder.getFinalConnection().getHeaderFields();
-            if (headers.containsKey("Location")) {
-                builder = new ConnectionBuilder(headers.get("Location").get(0));
-                builder.send();
-                finalConnection = builder.finalConnection;
-            }
-        }
-
-    }
-
-    private String formatGetURL(final String url, final String data) {
+    private String formatGetURL(String url, String data) {
 
         String newURL = url;
 

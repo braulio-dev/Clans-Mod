@@ -6,20 +6,20 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class GuiButtonMain extends GuiButtonWithImage {
+public class GuiButtonMain extends GuiButtonCustom {
 
-    GuiButtonMain(final int buttonId, final int x, final int y, final int widthIn, final int heightIn) {
-        super(buttonId, x, y, widthIn, heightIn, GuiButtonWithImage.customGUITextures, "");
+    public GuiButtonMain(int buttonId, int x, int y, int widthIn, int heightIn) {
+        super(buttonId, x, y, widthIn, heightIn, GuiButtonCustom.customGUITextures, "");
 
         textureHeight = heightIn;
         textureWidth = widthIn;
-        horizontal = 0;
-        vertical = 0;
+        u = 0;
+        v = 0;
     }
 
     @SubscribeEvent
-    public void onClick(final GuiScreenEvent.ActionPerformedEvent event) {
-        if (event.gui instanceof GuiMainMenu && (event.button.id == id)) {
+    public void onClick(GuiScreenEvent.ActionPerformedEvent event) {
+        if (event.gui instanceof GuiMainMenu && (event.button.id == this.id)) {
             Minecraft.getMinecraft().displayGuiScreen(new MainGUI());
         }
     }

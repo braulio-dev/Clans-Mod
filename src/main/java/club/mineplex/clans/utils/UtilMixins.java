@@ -4,10 +4,8 @@ import club.mineplex.clans.ClansMod;
 import net.minecraft.inventory.Slot;
 
 public class UtilMixins {
-    private UtilMixins() {
-    }
 
-    public static Slot getSlotInHotbar(final int slot) {
+    public static Slot getSlotInHotbar(int slot) {
         int slot2 = ClansMod.getInstance().getMinecraft().thePlayer.inventoryContainer.inventorySlots.size() + slot;
         slot2 -= 9;
 
