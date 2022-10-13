@@ -1,41 +1,64 @@
 package club.mineplex.clans;
 
-import club.mineplex.clans.clansmod.ModInitializer;
-import club.mineplex.clans.clansmod.keybind.KeyBindingManager;
-import club.mineplex.clans.gui.GuiEvents;
-import club.mineplex.clans.listeners.ListenerServerConnection;
-import club.mineplex.clans.modules.ModModule;
-import club.mineplex.clans.modules.drop_prevention.ModuleDropPrevention;
-import club.mineplex.clans.modules.enhanced_mounts.ModuleEnhancedMounts;
-import club.mineplex.clans.modules.map_fix.ModuleMapFix;
-import club.mineplex.clans.modules.message_filter.ModuleMessageFilter;
-import club.mineplex.clans.modules.mineplex_server.ModuleMineplexServerHandler;
-import club.mineplex.clans.modules.slot_lock.ModuleSlotLock;
-import club.mineplex.clans.modules.status_indicators.IndicatorManager;
-import club.mineplex.clans.utils.UtilClient;
-import club.mineplex.clans.utils.UtilReference;
-import net.minecraft.client.Minecraft;
+import club.mineplex.clans.client.DiscordIntegration;
+import club.mineplex.clans.client.gui.GuiEvents;
+import club.mineplex.clans.client.hud.HudManager;
+import club.mineplex.clans.client.keybind.KeyBindingManager;
+import club.mineplex.clans.client.modules.AbstractMod;
+import club.mineplex.clans.client.modules.champions.ModuleChampions;
+import club.mineplex.clans.client.modules.champions.ModuleChampionsQoL;
+import club.mineplex.clans.client.modules.clans.*;
+import club.mineplex.clans.client.modules.mineplex.ModuleMineplexServerHandler;
+import club.mineplex.clans.client.settings.Config;
+import club.mineplex.clans.client.settings.repo.ChampionsSettings;
+import club.mineplex.clans.client.settings.repo.ClansSettings;
+import club.mineplex.clans.client.settings.repo.ClientSettings;
+import club.mineplex.clans.client.settings.repo.DropSettings;
+import club.mineplex.clans.command.GearCommand;
+import club.mineplex.clans.gamestate.GameState;
+import club.mineplex.clans.gamestate.controller.GenericController;
+import club.mineplex.clans.gamestate.controller.ListenerServerConnection;
+import club.mineplex.clans.gamestate.controller.MineplexController;
+import club.mineplex.clans.gamestate.controller.ServerController;
+import club.mineplex.clans.item.ItemFactory;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.util.*;
 
-@Mod(modid = UtilReference.MODID, version = UtilReference.VERSION, name = UtilReference.MODNAME)
+@Mod(modid = "clansmod", useMetadata = true)
 public class ClansMod {
 
-    @Mod.Instance(value = UtilReference.MODID)
+    @Mod.Instance("clansmod")
     private static ClansMod instance;
-    private final Map<Class<? extends ModModule>, ModModule> modules = new HashMap<>();
-    private final DiscordIntegration discord = new DiscordIntegration();
-    private ClientData clientData;
-    private Configuration configuration;
+    public static final Logger logger = LogManager.getLogger("ClansMod");
+
+    private final Map<Class<? extends AbstractMod>, AbstractMod> modules = new HashMap<>();
+    private final File configFolder = new File(Loader.instance().getConfigDir(), "clansmod");
+    private final Config config = new Config(new File(this.configFolder, "config.json"));
+
+    private final ItemFactory itemFactory = new ItemFactory();
+    private Client client;
+    private GameState gameState;
+    private Configuration rootConfiguration;
+    private List<ServerController<?>> serverControllers;
+    final DiscordIntegration discord = new DiscordIntegration();
 
     public static ClansMod getInstance() {
         return instance;
+    }
+
+    public static Mod getMod() {
+        return ClansMod.class.getAnnotation(Mod.class);
     }
 
     private void registerEvents(final Object... events) {
@@ -44,8 +67,8 @@ public class ClansMod {
         }
     }
 
-    private void registerModules(final ModModule... modules) {
-        for (final ModModule module : modules) {
+    private void registerModules(final AbstractMod... modules) {
+        for (final AbstractMod module : modules) {
             this.modules.put(module.getClass(), module);
             MinecraftForge.EVENT_BUS.register(module);
         }
@@ -53,68 +76,104 @@ public class ClansMod {
 
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event) {
-        configuration = new Configuration(event.getSuggestedConfigurationFile());
-        configuration.load();
-
+        this.rootConfiguration = new Configuration(event.getSuggestedConfigurationFile());
+        this.rootConfiguration.load();
         KeyBindingManager.getInstance().setup();
     }
 
     @EventHandler
     public void init(final FMLInitializationEvent event) {
-        clientData = new ClientData();
-        UtilClient.checkModVersion(clientData);
+        if (!this.configFolder.exists()) {
+            this.configFolder.mkdir();
+        }
 
-        System.out.println("----------------");
-        System.out.println();
-        System.out.println(UtilReference.MODNAME + ": Made by ReyBot");
-        System.out.println();
-        System.out.println("----------------");
+        this.config.registerClass(ClansSettings.class);
+        this.config.registerClass(ChampionsSettings.class);
+        this.config.registerClass(ClientSettings.class);
+        this.config.registerClass(DropSettings.class);
+        this.config.load();
+        this.config.save();
 
-        registerEvents(
+        this.gameState = GameState.getInstance(this);
+
+        this.serverControllers = Arrays.asList(
+                new GenericController(),
+                new MineplexController()
+        );
+        serverControllers.forEach(MinecraftForge.EVENT_BUS::register);
+
+        this.registerEvents(
                 this,
-                new GuiEvents(),
+                new GuiEvents(this),
                 new ListenerServerConnection(),
-                new IndicatorManager()
+                HudManager.getInstance()
         );
 
-        ModInitializer.getInstance().init();
+        ClientCommandHandler.instance.registerCommand(new GearCommand());
+
 
         // Enable modules
-        registerModules(
+        this.registerModules(
                 new ModuleMineplexServerHandler(),
                 new ModuleDropPrevention(),
                 new ModuleSlotLock(),
-                new ModuleMessageFilter(),
                 new ModuleEnhancedMounts(),
-                new ModuleMapFix()
+                new ModuleMapFix(),
+                new ModuleResourcepack(),
+                new ModuleChampions(),
+                new ModuleClansQoL(),
+                new ModuleChampionsQoL()
         );
 
-        discord.start();
+        for (AbstractMod module : getModules()) {
+            module.init();
+        }
+
+        HudManager.getInstance().loadRenderers();
+
+        this.discord.start();
+        this.client = new Client(this);
     }
 
-    public List<ModModule> getEnabledModules() {
-        return new ArrayList<>(modules.values());
+    public List<AbstractMod> getModules() {
+        return new ArrayList<>(this.modules.values());
     }
 
-    private <T extends ModModule> Optional<T> getModule(final Class<T> moduleClass) {
-        return Optional.ofNullable(moduleClass.cast(modules.get(moduleClass)));
+    public <T extends AbstractMod> Optional<T> getModule(final Class<T> moduleClass) {
+        return Optional.ofNullable(moduleClass.cast(this.modules.get(moduleClass)));
     }
 
-    public <T extends ModModule> T getModuleThrow(final Class<T> moduleClass) {
-        return getModule(moduleClass)
-                .orElseThrow(() -> new RuntimeException("Invalid module class: " + moduleClass.getName()));
+    public <T extends AbstractMod> T getModuleThrow(final Class<T> moduleClass) {
+        return this.getModule(moduleClass)
+                   .orElseThrow(() -> new RuntimeException("Invalid module class: " + moduleClass.getName()));
     }
 
-    public Minecraft getMinecraft() {
-        return Minecraft.getMinecraft();
+    public ItemFactory getItemManager() {
+        return itemFactory;
     }
 
-    public ClientData getClientData() {
-        return clientData;
+    public File getConfigFolder() {
+        return configFolder;
     }
 
-    public Configuration getConfiguration() {
-        return configuration;
+    public Config getConfig() {
+        return config;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public Configuration getRootConfiguration() {
+        return rootConfiguration;
+    }
+
+    public List<ServerController<?>> getServerControllers() {
+        return serverControllers;
+    }
+
+    public Client getClient() {
+        return client;
     }
 
 }

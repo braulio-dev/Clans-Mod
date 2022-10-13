@@ -7,6 +7,9 @@
     "MixinContainer",
     "MixinEntityPlayerSP",
     "MixinGuiContainer",
+    "MixinItemStack",
+    "MixinNetHandlerPlayClient",
+    "MixinNetworkManager",
     "MixinSlotItemHandler"
   ],
   "minVersion": "0.6"

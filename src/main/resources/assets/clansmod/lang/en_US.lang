@@ -2,9 +2,66 @@ language.name=English
 language.region=US
 language.code=en_US
 
-clansmod.key.hud.desc=Open the HUD
+# Keybind Descriptions
 clansmod.key.category=Clans Mod
+clansmod.key.settings.desc=Change Settings
 clansmod.key.slotlock.desc=Lock a Slot
 clansmod.key.mount.desc=Spawn your last mount
 clansmod.key.cstuck.desc=Teleport to Wilderness
 clansmod.key.chome.desc=Teleport to Clan Home
+clansmod.key.render-cycle.desc=Cycle render distance
+clansmod.key.hud.desc=Manage the HUD
+
+# Gui
+clansmod.gui.open=%s Settings
+
+# General
+clansmod.setting.general=General
+clansmod.setting.general.use-render-distance-key=Use Render Cycle Key
+
+# Mineplex
+clansmod.setting.mineplex=Mineplex
+
+# Champions
+clansmod.setting.mineplex.champions=Champions
+clansmod.setting.mineplex.champions.skill-recharge-renderer=Skill Recharge in HUD
+clansmod.setting.mineplex.champions.mana-renderer=Render Mage Mana in HUD
+clansmod.setting.mineplex.champions.prevent-preparing-arrow-twice=Prevent Preparing Multiple Arrows
+
+# Clans
+clansmod.setting.clans=Clans
+clansmod.setting.clans.lock-inventory-slots=Lock Inventory Slots
+clansmod.setting.clans.use-mount-spawn-key=Use Mount Spawn Key
+clansmod.setting.clans.load-pack=Load Textures
+
+# Clans - QoL
+clansmod.setting.clans.qol=Quality of Life
+clansmod.setting.clans.qol.map-fix=Fix Clans Map
+clansmod.setting.clans.qol.fake-item-warning=Display Fake Item Warning
+clansmod.setting.clans.qol.enhanced-death-messages=Enhanced Death Messages
+clansmod.setting.clans.qol.show-reinforced-total=Display Reinforced Armor Total
+clansmod.setting.clans.qol.enhanced-runed-items-display=Enhanced Runed Items Display
+
+# Discord
+clansmod.setting.discord=Discord
+clansmod.setting.discord.rich-status=Use Rich Status
+clansmod.setting.discord.display-server=Display Server
+clansmod.setting.discord.display-mineplex-server=Display Mineplex Lobby
+
+# Clans - Valuable Item Drop Prevention
+clansmod.setting.clans.valuable-item-drop-prevention=Item Drop Prevention
+clansmod.setting.clans.valuable-item-drop-prevention.gold_token=Gold Token
+clansmod.setting.clans.valuable-item-drop-prevention.runed_pickaxe=Runed Pickaxe
+clansmod.setting.clans.valuable-item-drop-prevention.windblade=Windblade
+clansmod.setting.clans.valuable-item-drop-prevention.broadsword=Giant's Broadsword
+clansmod.setting.clans.valuable-item-drop-prevention.lance=Knight's Greatlance
+clansmod.setting.clans.valuable-item-drop-prevention.scythe=Scythe of the Fallen Lord
+clansmod.setting.clans.valuable-item-drop-prevention.scepter=Meridian Scepter
+clansmod.setting.clans.valuable-item-drop-prevention.hyper=Hyper Axe
+clansmod.setting.clans.valuable-item-drop-prevention.tooth=Alligator's Tooth
+clansmod.setting.clans.valuable-item-drop-prevention.maul=Magnetic Maul
+clansmod.setting.clans.valuable-item-drop-prevention.cannon=Cannon
+clansmod.setting.clans.valuable-item-drop-prevention.rune=Rune (Nether Star)
+clansmod.setting.clans.valuable-item-drop-prevention.outpost=Outpost (Beacon)
+clansmod.setting.clans.valuable-item-drop-prevention.tnt=TNT
+

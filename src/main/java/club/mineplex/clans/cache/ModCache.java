@@ -6,13 +6,17 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class ModCache<T> {
 
-    protected ModCache() {
+    ModCache() {
+        this(30L);
+    }
+
+    private ModCache(final long minuteInterval) {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 updateCache();
             }
-        }, 0, TimeUnit.MINUTES.toMillis(30));
+        }, 0, TimeUnit.MINUTES.toMillis(minuteInterval));
     }
 
     public abstract T get();

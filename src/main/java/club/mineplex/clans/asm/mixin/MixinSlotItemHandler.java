@@ -1,7 +1,7 @@
 package club.mineplex.clans.asm.mixin;
 
 import club.mineplex.clans.ClansMod;
-import club.mineplex.clans.modules.slot_lock.ModuleSlotLock;
+import club.mineplex.clans.client.modules.clans.ModuleSlotLock;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
